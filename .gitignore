@@ -1,0 +1,33 @@
+# CircleWork Africa — ignore rules
+# Never commit secrets or user data.
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+config/config.local.php
+
+# Private user data
+storage/documents/*
+storage/uploads/*
+storage/logs/*
+!storage/documents/.gitkeep
+!storage/uploads/.gitkeep
+!storage/logs/.gitkeep
+
+# Vendor / tooling (project intentionally does not use Composer)
+/vendor/
+/.tools/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Local artefacts
+*.log
+*.tmp
+/tests/tmp/
