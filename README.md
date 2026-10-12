@@ -315,7 +315,10 @@ admin access, object-level authorisation for contracts, projects, proposals, pay
 files, duplicate proposals, competing proposal awards, dual contract acceptance, contract
 version changes, revision requests, payment ownership and confirmation rules, review
 eligibility, upload restrictions, CSRF, SQL injection, XSS escaping, account suspension and
-audit log creation.
+audit log creation, plus a full end-to-end lifecycle test that registers a client and a
+freelancer, moderates a project, awards a proposal, activates a contract, exchanges messages,
+submits and revises a deliverable, records and confirms a direct payment, completes the
+contract and leaves reviews.
 
 ---
 
@@ -500,7 +503,7 @@ Also ensure `display_errors` stays off in `php.ini` as a second layer of defence
 
 **Phase 8 — Revenue** ✅ Subscription plans, manual payment verification, featured listings, server-side feature limits, expiry, clear premium indicators.
 
-**Phase 9 — Quality assurance** ✅ 80 automated tests passing, PHP syntax checks clean, permissions and critical workflows exercised, README and database documentation complete.
+**Phase 9 — Quality assurance** ✅ 82 automated tests passing, PHP syntax checks clean, permissions and critical workflows exercised, README and database documentation complete.
 
 ### Known limitations
 

@@ -82,6 +82,8 @@ final class HttpClient
     /** @var array<string,string> */
     private array $cookies = [];
 
+    private ?string $cachedToken = null;
+
     public function __construct(private string $baseUrl)
     {
     }
@@ -109,14 +111,27 @@ final class HttpClient
     }
 
     /**
-     * Fetch a CSRF token from a page (or reuse the session token).
+     * Return the session CSRF token, discovering it from a page that renders a form.
+     *
+     * The token is stable for the lifetime of the session, so it is cached after the
+     * first successful discovery.
      */
-    public function csrfToken(string $path = '/'): string
+    public function csrfToken(string $path = ''): string
     {
-        $response = $this->request('GET', $path);
+        if ($this->cachedToken !== null) {
+            return $this->cachedToken;
+        }
 
-        if (preg_match('/name="_token" value="([^"]+)"/', $response['body'], $matches) === 1) {
-            return $matches[1];
+        $candidates = array_filter([$path, '/dashboard', '/login', '/register', '/']);
+
+        foreach ($candidates as $candidate) {
+            $response = $this->request('GET', $candidate);
+
+            if (preg_match('/name="_token" value="([^"]+)"/', $response['body'], $matches) === 1) {
+                $this->cachedToken = $matches[1];
+
+                return $this->cachedToken;
+            }
         }
 
         return '';
@@ -189,6 +204,11 @@ final class HttpClient
 
             if ($value === '' || strcasecmp($value, 'deleted') === 0) {
                 unset($this->cookies[$name]);
+
+                if ($name === session_name()) {
+                    $this->cachedToken = null;
+                }
+
                 continue;
             }
 
