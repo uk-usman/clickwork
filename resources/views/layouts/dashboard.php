@@ -24,6 +24,11 @@ $activeMode = $activeMode ?? 'client';
     <?php require CIRCLEWORK_ROOT . '/resources/views/components/dashboard-nav.php'; ?>
 
     <div class="cw-main">
+        <button class="btn btn-navy btn-sm d-lg-none mb-3" type="button" data-bs-toggle="offcanvas"
+                data-bs-target="#cwMobileNav" aria-controls="cwMobileNav" aria-label="Open navigation menu">
+            <i class="bi bi-list me-1"></i> Menu
+        </button>
+
         <?php require CIRCLEWORK_ROOT . '/resources/views/components/flash.php'; ?>
 
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">

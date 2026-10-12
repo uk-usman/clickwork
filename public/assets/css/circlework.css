@@ -246,25 +246,31 @@ h1, h2, h3, h4, h5, h6 { color: var(--cw-navy-900); font-weight: 700; letter-spa
     background: var(--cw-navy-900); color: rgba(255, 255, 255, 0.85);
     padding: var(--cw-space-4) 0;
 }
-.cw-sidebar__section {
+.cw-sidebar__section,
+.cw-nav-list__section {
     font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em;
     color: rgba(255, 255, 255, 0.45); padding: var(--cw-space-4) var(--cw-space-5) var(--cw-space-2);
 }
-.cw-sidebar a {
+.cw-sidebar a,
+.cw-nav-list a {
     display: flex; align-items: center; gap: 0.65rem;
     color: rgba(255, 255, 255, 0.8); padding: 0.6rem var(--cw-space-5);
     font-weight: 500; border-left: 3px solid transparent;
 }
-.cw-sidebar a:hover { background: rgba(255, 255, 255, 0.06); color: #fff; text-decoration: none; }
-.cw-sidebar a.active {
+.cw-sidebar a:hover,
+.cw-nav-list a:hover { background: rgba(255, 255, 255, 0.06); color: #fff; text-decoration: none; }
+.cw-sidebar a.active,
+.cw-nav-list a.active {
     background: rgba(37, 99, 235, 0.22); color: #fff;
     border-left-color: var(--cw-royal-400); font-weight: 600;
 }
-.cw-sidebar a i { width: 1.15rem; text-align: center; }
+.cw-sidebar a i,
+.cw-nav-list a i { width: 1.15rem; text-align: center; }
 
 .cw-main { flex: 1 1 auto; min-width: 0; padding: var(--cw-space-5); }
 
-.cw-offcanvas { background: var(--cw-navy-900); }
+.cw-offcanvas { background: var(--cw-navy-900); color: rgba(255, 255, 255, 0.85); }
+.cw-nav-list a { display: flex; align-items: center; gap: 0.65rem; }
 .cw-offcanvas .btn-close { filter: invert(1) grayscale(1) brightness(2); }
 
 /* -------------------------------------------------------------- tables ---- */
