@@ -59,7 +59,7 @@ final class PaymentService
             $parsed = \DateTimeImmutable::createFromFormat('Y-m-d', $paidOn);
             if ($parsed === false || $parsed->format('Y-m-d') !== $paidOn) {
                 $errors['paid_on'] = 'Please enter a valid payment date.';
-            } elseif ($parsed > new \DateTimeImmutable('today')) {
+            } elseif ($paidOn > gmdate('Y-m-d')) {
                 $errors['paid_on'] = 'The payment date cannot be in the future.';
             }
         }

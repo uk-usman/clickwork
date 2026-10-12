@@ -84,16 +84,11 @@ final class UploadService
         $originalName = mb_substr($originalName, 0, 200);
 
         $extension = strtolower((string) pathinfo($originalName, PATHINFO_EXTENSION));
-        $allowedExtensions = array_map('strtolower', $allowedExtensions);
 
-        if ($extension === '' || !in_array($extension, $allowedExtensions, true)) {
-            return ['ok' => false, 'error' => 'This file type is not allowed. Permitted types: ' . implode(', ', $allowedExtensions) . '.'];
-        }
+        $extensionError = self::checkExtension($extension, $allowedExtensions);
 
-        // Never allow executable extensions regardless of the allow-list.
-        if (in_array($extension, ['php', 'phtml', 'php3', 'php4', 'php5', 'php7', 'phar', 'pl', 'py', 'sh', 'cgi', 'asp', 'aspx', 'js', 'html', 'htm', 'svg', 'exe', 'bat'], true)) {
-            Logger::security('Rejected upload with executable extension', ['extension' => $extension]);
-            return ['ok' => false, 'error' => 'This file type is not permitted for security reasons.'];
+        if ($extensionError !== null) {
+            return ['ok' => false, 'error' => $extensionError];
         }
 
         $finfo = new \finfo(FILEINFO_MIME_TYPE);
@@ -165,6 +160,46 @@ final class UploadService
         }
 
         return @unlink($path);
+    }
+
+    /**
+     * Extensions that must never be accepted, regardless of the allow-list.
+     *
+     * @var array<int,string>
+     */
+    public const FORBIDDEN_EXTENSIONS = [
+        'php', 'phtml', 'php3', 'php4', 'php5', 'php7', 'php8', 'phar', 'pl', 'py', 'sh',
+        'cgi', 'asp', 'aspx', 'js', 'mjs', 'html', 'htm', 'svg', 'exe', 'bat', 'cmd', 'com',
+        'htaccess', 'htpasswd',
+    ];
+
+    /**
+     * Validate a filename extension against the allow-list and the forbidden list.
+     *
+     * Returns an error message, or null when the extension is acceptable.
+     *
+     * @param array<int,string> $allowedExtensions
+     */
+    public static function checkExtension(string $extension, array $allowedExtensions): ?string
+    {
+        $extension = strtolower(ltrim($extension, '.'));
+        $allowedExtensions = array_map(static fn (string $item): string => strtolower(ltrim($item, '.')), $allowedExtensions);
+
+        if ($extension === '') {
+            return 'The file must have a recognised extension.';
+        }
+
+        if (in_array($extension, self::FORBIDDEN_EXTENSIONS, true)) {
+            Logger::security('Rejected upload with forbidden extension', ['extension' => $extension]);
+
+            return 'This file type is not permitted for security reasons.';
+        }
+
+        if (!in_array($extension, $allowedExtensions, true)) {
+            return 'This file type is not allowed. Permitted types: ' . implode(', ', $allowedExtensions) . '.';
+        }
+
+        return null;
     }
 
     public static function humanSize(int $bytes): string

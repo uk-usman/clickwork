@@ -203,7 +203,7 @@ final class ProjectService
             $parsed = \DateTimeImmutable::createFromFormat('Y-m-d', $deadline);
             if ($parsed === false || $parsed->format('Y-m-d') !== $deadline) {
                 $errors['deadline'] = 'Please enter a valid deadline date.';
-            } elseif ($parsed < new \DateTimeImmutable('today')) {
+            } elseif ($deadline < gmdate('Y-m-d')) {
                 $errors['deadline'] = 'The deadline cannot be in the past.';
             }
         }
@@ -302,7 +302,9 @@ final class ProjectService
             'Project ' . ($decision === 'approve' ? 'approved and published' : 'rejected'),
             'project',
             $projectId,
-            ['decision' => $decision, 'note' => $note]
+            ['decision' => $decision, 'note' => $note],
+            $adminId,
+            'admin'
         );
 
         NotificationService::notify(

@@ -197,7 +197,7 @@ final class DeliverableService
 
         $contractId = (int) $deliverable['contract_id'];
 
-        Database::transaction(static function () use ($deliverableId, $clientId, $contractId): void {
+        Database::transaction(static function () use ($deliverableId, $clientId, $contractId, $deliverable): void {
             Deliverable::update($deliverableId, [
                 'status'      => 'approved',
                 'reviewed_by' => $clientId,
