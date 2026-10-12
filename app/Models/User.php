@@ -128,4 +128,96 @@ final class User extends Model
 
         return [$sql, $params];
     }
+
+    /**
+     * Recalculate the cached rating aggregate from real published reviews.
+     */
+    public static function recalculateRating(int $userId): void
+    {
+        $row = Database::selectOne(
+            'SELECT COUNT(*) AS total, COALESCE(AVG(rating), 0) AS average
+             FROM `reviews` WHERE `reviewee_id` = ? AND `status` = \'published\'',
+            [$userId]
+        );
+
+        UserProfile::updateAggregate(
+            $userId,
+            round((float) ($row['average'] ?? 0), 2),
+            (int) ($row['total'] ?? 0)
+        );
+    }
+
+    public static function recalculateCompletedContracts(int $userId): void
+    {
+        $count = (int) Database::scalar(
+            'SELECT COUNT(*) FROM `contracts`
+             WHERE `status` = \'completed\' AND (`client_id` = ? OR `freelancer_id` = ?)',
+            [$userId, $userId]
+        );
+
+        UserProfile::updateCompletedContracts($userId, $count);
+    }
+
+    /**
+     * @param  array<string,mixed> $filters
+     * @return array<int,array<string,mixed>>
+     */
+    public static function adminList(array $filters, int $limit, int $offset): array
+    {
+        [$where, $params] = self::adminFilterSql($filters);
+
+        return Database::select(
+            'SELECT u.*, p.city, p.state, p.freelancer_title, p.profile_visibility, p.completed_contracts
+             FROM `users` u
+             LEFT JOIN `user_profiles` p ON p.user_id = u.id
+             WHERE ' . $where . '
+             ORDER BY u.created_at DESC
+             LIMIT ' . max(1, min($limit, 100)) . ' OFFSET ' . max(0, $offset),
+            $params
+        );
+    }
+
+    /**
+     * @param array<string,mixed> $filters
+     */
+    public static function adminCount(array $filters): int
+    {
+        [$where, $params] = self::adminFilterSql($filters);
+
+        return (int) Database::scalar(
+            'SELECT COUNT(*) FROM `users` u LEFT JOIN `user_profiles` p ON p.user_id = u.id WHERE ' . $where,
+            $params
+        );
+    }
+
+    /**
+     * @param  array<string,mixed> $filters
+     * @return array{0:string,1:array<int,mixed>}
+     */
+    private static function adminFilterSql(array $filters): array
+    {
+        $conditions = ['1=1'];
+        $params = [];
+
+        if (!empty($filters['q'])) {
+            $conditions[] = '(u.name LIKE ? OR u.email LIKE ?)';
+            $like = '%' . $filters['q'] . '%';
+            $params[] = $like;
+            $params[] = $like;
+        }
+        if (!empty($filters['role'])) {
+            $conditions[] = 'u.role = ?';
+            $params[] = $filters['role'];
+        }
+        if (!empty($filters['status'])) {
+            $conditions[] = 'u.status = ?';
+            $params[] = $filters['status'];
+        }
+        if (!empty($filters['state'])) {
+            $conditions[] = 'p.state = ?';
+            $params[] = $filters['state'];
+        }
+
+        return [implode(' AND ', $conditions), $params];
+    }
 }
