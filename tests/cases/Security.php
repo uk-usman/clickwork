@@ -36,6 +36,34 @@ return [
         assert_false((string) User::find((int) $user['id'])['name'] === 'Tampered Token', 'The profile must not have been changed.');
     },
 
+    'validation errors repopulate the form and show inline messages' => function (): void {
+        $client = Fixtures::user();
+        User::update((int) $client['id'], ['password_hash' => password_hash('FormPass12345', PASSWORD_DEFAULT)]);
+
+        $http = new HttpClient('http://127.0.0.1:8123');
+        $http->post('/login', ['email' => (string) $client['email'], 'password' => 'FormPass12345']);
+
+        $http->post('/client/projects', [
+            'action'      => 'submit',
+            'title'       => 'Bad',
+            'category_id' => '1',
+            'description' => 'short',
+            'budget_type' => 'fixed',
+            'budget_min'  => '100',
+            'budget_max'  => '50',
+            'currency'    => 'NGN',
+            'visibility'  => 'public',
+        ]);
+
+        $form = $http->get('/client/projects/create');
+
+        assert_equals(200, $form['status'], 'The form should render again after a validation failure.');
+        assert_contains('value="Bad"', $form['body'], 'The submitted title should be repopulated.');
+        assert_contains('is-invalid', $form['body'], 'Invalid fields should be marked.');
+        assert_contains('at least 8 characters', $form['body'], 'An inline validation message should be shown.');
+        assert_contains('lower than the minimum', $form['body'], 'The inverted budget should be reported.');
+    },
+
     'SQL injection attempts do not break queries or expose data' => function (): void {
         $client = Fixtures::user();
         Fixtures::project((int) $client['id'], ['title' => 'Legitimate project title for the injection test']);

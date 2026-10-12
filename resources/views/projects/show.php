@@ -106,7 +106,7 @@ $canPropose = App\Core\Auth::check()
                             <div class="col-md-6">
                                 <label class="form-label" for="bid_amount">Your bid (<?= e((string) $project['currency']) ?>)</label>
                                 <input type="number" step="0.01" min="1" class="form-control <?= isset($errors['bid_amount']) ? 'is-invalid' : '' ?>"
-                                       id="bid_amount" name="bid_amount" value="<?= old('bid_amount') ?>
+                                       id="bid_amount" name="bid_amount" value="<?= old('bid_amount') ?>">
                                 <?php $field = 'bid_amount'; require CIRCLEWORK_ROOT . '/resources/views/components/field-error.php'; ?>
                             </div>
                             <div class="col-md-6">

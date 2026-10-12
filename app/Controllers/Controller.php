@@ -26,9 +26,13 @@ abstract class Controller
         $data['errors'] = Session::pullErrors();
         $data['activeMode'] = Auth::activeMode();
 
+        $html = View::render($view, $data, $layout);
+
+        // Old input stays available while the view renders, then is discarded so a
+        // refresh does not repopulate a form with stale values.
         Session::pullOld();
 
-        return View::render($view, $data, $layout);
+        return $html;
     }
 
     /**

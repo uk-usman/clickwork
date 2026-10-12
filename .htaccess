@@ -1,0 +1,19 @@
+# CircleWork Africa — project-root Apache rules.
+#
+# The project root must NOT be the web root. Point your virtual host or XAMPP
+# document root at /public. These rules are a safety net for shared hosting
+# where the whole project happens to be inside the web root.
+
+# Deny everything by default, then allow only the public directory.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(app|config|database|resources|routes|storage|tests)/ - [F,L]
+    RewriteRule ^\.env - [F,L]
+    RewriteRule ^\.git - [F,L]
+</IfModule>
+
+<FilesMatch "^(\.env|\.env\..*|composer\.(json|lock)|\.gitignore|\.htaccess)$">
+    Require all denied
+</FilesMatch>
+
+Options -Indexes
