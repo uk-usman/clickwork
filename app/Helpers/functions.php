@@ -101,10 +101,10 @@ if (!function_exists('redirect_to')) {
     function redirect_to(string $nameOrPath, array $params = []): never
     {
         if (App::router()->has($nameOrPath)) {
-            App\Core\Response::redirect(route($nameOrPath, $params));
+            \App\Core\Response::redirect(route($nameOrPath, $params));
         }
 
-        App\Core\Response::redirect(url($nameOrPath));
+        \App\Core\Response::redirect(url($nameOrPath));
     }
 }
 
@@ -176,7 +176,7 @@ if (!function_exists('money')) {
 if (!function_exists('setting')) {
     function setting(string $key, ?string $default = null): ?string
     {
-        return App\Models\Setting::get($key, $default);
+        return \App\Models\Setting::get($key, $default);
     }
 }
 
@@ -245,7 +245,7 @@ if (!function_exists('active_if')) {
      */
     function active_if(string $path, string $class = 'active'): string
     {
-        $current = App\Core\Request::capture()->path();
+        $current = \App\Core\Request::capture()->path();
         $path = '/' . trim($path, '/');
 
         if ($path === '/') {
@@ -276,5 +276,75 @@ if (!function_exists('humanize')) {
     function humanize(?string $value): string
     {
         return ucwords(str_replace('_', ' ', (string) $value));
+    }
+}
+
+if (!function_exists('bootstrap_css')) {
+    /**
+     * Local Bootstrap stylesheet when present, otherwise the configurable CDN
+     * fallback. See README for how to install local assets.
+     */
+    function bootstrap_css(): string
+    {
+        $local = '/assets/vendor/bootstrap/css/bootstrap.min.css';
+
+        if (is_file(CIRCLEWORK_ROOT . '/public' . $local)) {
+            return '<link rel="stylesheet" href="' . e(asset($local)) . '">';
+        }
+
+        return '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"'
+            . ' integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">';
+    }
+}
+
+if (!function_exists('bootstrap_js')) {
+    function bootstrap_js(): string
+    {
+        $local = '/assets/vendor/bootstrap/js/bootstrap.bundle.min.js';
+
+        if (is_file(CIRCLEWORK_ROOT . '/public' . $local)) {
+            return '<script src="' . e(asset($local)) . '" defer></script>';
+        }
+
+        return '<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"'
+            . ' integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous" defer></script>';
+    }
+}
+
+if (!function_exists('bootstrap_icons')) {
+    function bootstrap_icons(): string
+    {
+        $local = '/assets/vendor/bootstrap-icons/bootstrap-icons.css';
+
+        if (is_file(CIRCLEWORK_ROOT . '/public' . $local)) {
+            return '<link rel="stylesheet" href="' . e(asset($local)) . '">';
+        }
+
+        return '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">';
+    }
+}
+
+if (!function_exists('avatar_url')) {
+    /**
+     * Avatar image URL or null when the user has no uploaded photo.
+     */
+    function avatar_url(?string $path): ?string
+    {
+        if ($path === null || $path === '') {
+            return null;
+        }
+
+        return app_url('/media/avatar/' . rawurlencode($path));
+    }
+}
+
+if (!function_exists('portfolio_image_url')) {
+    function portfolio_image_url(?string $path): ?string
+    {
+        if ($path === null || $path === '') {
+            return null;
+        }
+
+        return app_url('/media/portfolio/' . rawurlencode($path));
     }
 }

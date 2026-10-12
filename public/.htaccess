@@ -1,0 +1,26 @@
+# CircleWork Africa — Apache configuration for the public directory.
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Serve existing files and directories directly.
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Everything else goes through the front controller.
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Never serve dotfiles.
+<FilesMatch "^\\.">
+    Require all denied
+</FilesMatch>
+
+Options -Indexes
